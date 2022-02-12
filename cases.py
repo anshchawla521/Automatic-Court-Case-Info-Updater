@@ -18,6 +18,7 @@ import concurrent.futures
 characters_allowed = [" ", "/", "_"]
 Case_types = ["CWP", "CRM-M", "CR", "RSA", "CRR", "CRA-S", "FAO", "CM", "CRM", "ARB", "ARB-DC", "ARB-ICA", "CA", "CA-CWP", "CA-MISC",
               "CACP", "CAPP", "CCEC", "CCES", "CEA", "CEC", "CEGC", "CESR", "CLAIM", "CMA", "CMM", "CO-COM", "COA", "COCP", "COMM-PET-M", "CP"]
+              #add dynamic case types
 headers = {
     'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36 Edg/92.0.902.78'
 }
@@ -74,10 +75,12 @@ def find_info(data):
             # table is a bs4 set # have to do type casting
             table = soup.find_all(class_='alt')
             if len(table) == 0:
+                # no case found 
                 table = soup.find_all(class_='alt_no_data')
                 data.update({"status": table[0].text.strip()})
-                # updating no case found as status
+                
             else:
+                # if case found pick the top one
                 soup = bs4.BeautifulSoup(str(table[0]), 'html.parser')
                 # for i in range(0, 6):  # 6 paramters
                 #     print(soup.find_all('td')[i].text.strip())
@@ -104,6 +107,7 @@ def find_info(data):
 
 
 def find_extrainfo(data):
+    # what if the status doesnt exist ????
     if 'status' in data.keys():
         if data['status'] == 'No Case Found':
             # no extra info can be found
@@ -202,7 +206,7 @@ cases_list = ['CM 6889-CWP 2020',
               'CR 3213 2019',
               'CWP 4665 2019'
               ]
-cases_list_dict = []
+cases_list_formatted = []
 
 
 
@@ -212,12 +216,12 @@ if __name__ == '__main__':
         start = time.perf_counter()
         # data = format_name("")
         for x in cases_list:
-            cases_list_dict.append(format_name(x))
+            cases_list_formatted.append(format_name(x))
         # #data = find_info(data)
         # data = find_extrainfo(data)
         with concurrent.futures.ThreadPoolExecutor() as executer:
             results = [executer.submit(find_extrainfo, x)
-                       for x in cases_list_dict]
+                       for x in cases_list_formatted]
         # print(data)
         for x in results:
             print(x.result())
