@@ -1,2 +1,6 @@
 venv/
 cases.py
+cases_v1/venv
+cases_v1/client_secret.json
+cases_v1/creds.json
+cases_v1/token.pkl
